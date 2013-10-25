@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys
 import subprocess
 import argparse
@@ -45,14 +47,12 @@ class DiffAction(argparse.Action):
 class CommitAction(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
         output = subprocess.Popen("svn status %s | grep '^A\|^M' | awk '{print $2}'" % quote(value), shell=True, stdout=subprocess.PIPE)
-        
         files_to_commit = format_file_list(output)
         commit_msg = raw_input('commit message: ')
-        
         command = 'svn commit {0} -m "{1}"'.format(files_to_commit, commit_msg)
-        
-        commit = subprocess.Popen(command, shell=True,)
-        
+        commit = subprocess.Popen(command, shell=True,) 
+        print commit.communicate()
+
 if __name__ == "__main__":
     currentdir = "."
     
@@ -63,6 +63,9 @@ if __name__ == "__main__":
     parser.add_argument('-d', action=DiffAction, help='diff all files in the current or given directory', nargs='?', const=currentdir, type=str)
     parser.add_argument('-c', action=CommitAction, help='commit all files in the current or given directory. asking for commit message', nargs='?', const=currentdir, type=str)
     
-    parser.parse_args(sys.argv[1:])
+    if not len(sys.argv[1:]) == 0:
+        parser.parse_args(sys.argv[1:])
+    else:
+        parser.print_help()
 	
     
